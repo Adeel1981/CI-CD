@@ -1,0 +1,28 @@
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment directories
+venv/
+env/
+
+# IDE specific files (e.g. VS Code, PyCharm)
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pytest cache
+.cache/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Local configuration
+*.env
+*.venv
