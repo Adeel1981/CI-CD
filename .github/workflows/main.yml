@@ -1,37 +1,30 @@
-name: Python Tests
-
-# Trigger the workflow when changes are pushed to the repository
-on:
-  push:
-    branches:
-      - main  # This triggers the workflow for pushes to the main branch
-  pull_request:
-    branches:
-      - main  # This triggers the workflow for pull requests targeting the main branch
-
 jobs:
   test:
-    # Run the tests on the latest Ubuntu environment
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository code
+      # Check out the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Python environment (Python 3.8 in this case)
+      # Remove any cached Python files (.pyc, __pycache__)
+      - name: Clean Python cache
+        run: |
+          find . -name "*.pyc" -exec rm -f {} \;
+          find . -name "__pycache__" -exec rm -rf {} \;
+
+      # Set up Python and install dependencies
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'  # You can update to a different version if needed
+          python-version: '3.8'  # Or whatever version you're using
 
-      # Step 3: Install the dependencies from requirements.txt
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 4: Run tests using pytest
+      # Run the tests
       - name: Run tests
         run: |
-          pytest --maxfail=1 --disable-warnings -q  # Run the tests with some custom flags
+          pytest --maxfail=1 --disable-warnings -q  # Or use unittest if needed
