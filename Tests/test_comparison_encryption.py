@@ -1,11 +1,22 @@
-import unittest  # Ensure this is imported
-
+import pytest
 import time
 import pandas as pd
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 from phe import paillier
+
+# Fixture for data
+@pytest.fixture
+def data():
+    df = pd.read_csv("data/bank.csv")
+    balance_value = df['balance'].iloc[0]  # Assuming balance is a numeric field
+    return balance_value
+
+# Fixture for AES key
+@pytest.fixture
+def key():
+    return b'\x00'*32  # AES 256-bit key
 
 # Function to encrypt data using AES
 def aes_encrypt(data, key):
@@ -32,7 +43,7 @@ def aes_decrypt(encrypted_data, key):
 # AES encryption test (simplified)
 def test_aes_encryption(data, key):
     start_time = time.time()
-    encrypted_data = aes_encrypt(data, key)
+    encrypted_data = aes_encrypt(str(data), key)
     encryption_time = time.time() - start_time
     decrypted_data = aes_decrypt(encrypted_data, key)
     decryption_time = time.time() - start_time
@@ -59,27 +70,20 @@ def test_paillier_encryption(data, public_key, private_key):
 
 
 # Unit tests for AES and Paillier comparison
-class TestEncryptionComparison(unittest.TestCase):
+def test_encryption_comparison(data, key):
+    # Set up AES key and Paillier keys
+    public_key, private_key = paillier.generate_paillier_keypair()
 
-    def test_encryption_comparison(self):
-        # Load the dataset
-        df = pd.read_csv("data/bank.csv")
-        balance_value = df['balance'].iloc[0]
+    # Test AES encryption and decryption
+    aes_encrypted, aes_decrypted, aes_encryption_time, aes_decryption_time = test_aes_encryption(data, key)
 
-        # Set up AES key and Paillier keys
-        key = b'\x00'*32  # AES 256-bit key
-        public_key, private_key = paillier.generate_paillier_keypair()
+    # Test Paillier encryption and decryption
+    paillier_encrypted, paillier_decrypted, paillier_encryption_time, paillier_decryption_time = test_paillier_encryption(data, public_key, private_key)
 
-        # Test AES encryption and decryption
-        aes_encrypted, aes_decrypted, aes_encryption_time, aes_decryption_time = test_aes_encryption(str(balance_value), key)
+    print(f"AES Encryption Time: {aes_encryption_time:.6f} seconds")
+    print(f"AES Decryption Time: {aes_decryption_time:.6f} seconds")
+    print(f"Paillier Encryption Time: {paillier_encryption_time:.6f} seconds")
+    print(f"Paillier Decryption Time: {paillier_decryption_time:.6f} seconds")
 
-        # Test Paillier encryption and decryption
-        paillier_encrypted, paillier_decrypted, paillier_encryption_time, paillier_decryption_time = test_paillier_encryption(balance_value, public_key, private_key)
-
-        print(f"AES Encryption Time: {aes_encryption_time:.6f} seconds")
-        print(f"AES Decryption Time: {aes_decryption_time:.6f} seconds")
-        print(f"Paillier Encryption Time: {paillier_encryption_time:.6f} seconds")
-        print(f"Paillier Decryption Time: {paillier_decryption_time:.6f} seconds")
-
-        self.assertEqual(balance_value, aes_decrypted, "AES Decryption failed!")
-        self.assertEqual(balance_value, paillier_decrypted, "Paillier Decryption failed!")
+    assert data == aes_decrypted, "AES Decryption failed!"
+    assert data == paillier_decrypted, "Paillier Decryption failed!"
