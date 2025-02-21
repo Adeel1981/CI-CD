@@ -1,10 +1,22 @@
+import pytest
 import time
 import pandas as pd
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 from phe import paillier
-import pytest  # Make sure pytest is imported
+
+# Define the data fixture to load the dataset
+@pytest.fixture
+def data():
+    df = pd.read_csv("data/bank.csv")  # Adjust path if necessary
+    balance_value = df['balance'].iloc[0]
+    return balance_value
+
+# Define a key fixture (for AES encryption)
+@pytest.fixture
+def key():
+    return b'\x00' * 32  # AES 256-bit key
 
 # Function to encrypt data using AES
 def aes_encrypt(data, key):
@@ -58,15 +70,14 @@ def test_paillier_encryption(data, public_key, private_key):
 
 
 # Unit tests for AES and Paillier comparison
-@pytest.mark.usefixtures("data", "key")  # Explicitly mark that we are using the data and key fixtures
 class TestEncryptionComparison:
 
     def test_encryption_comparison(self, data, key):
-        # Set up Paillier keys
+        # Set up AES key and Paillier keys
         public_key, private_key = paillier.generate_paillier_keypair()
 
         # Test AES encryption and decryption
-        aes_encrypted, aes_decrypted, aes_encryption_time, aes_decryption_time = test_aes_encryption(str(data), key)
+        aes_encrypted, aes_decrypted, aes_encryption_time, aes_decryption_time = test_aes_encryption(data, key)
 
         # Test Paillier encryption and decryption
         paillier_encrypted, paillier_decrypted, paillier_encryption_time, paillier_decryption_time = test_paillier_encryption(data, public_key, private_key)
@@ -76,6 +87,5 @@ class TestEncryptionComparison:
         print(f"Paillier Encryption Time: {paillier_encryption_time:.6f} seconds")
         print(f"Paillier Decryption Time: {paillier_decryption_time:.6f} seconds")
 
-        # Assertions to check if encryption and decryption worked correctly
         assert data == aes_decrypted, "AES Decryption failed!"
         assert data == paillier_decrypted, "Paillier Decryption failed!"
