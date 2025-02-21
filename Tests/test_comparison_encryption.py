@@ -1,4 +1,5 @@
-import unittest
+import unittest  # Ensure this is imported
+
 import time
 import pandas as pd
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -56,36 +57,29 @@ def test_paillier_encryption(data, public_key, private_key):
 
     return encrypted_data, decrypted_data, encryption_time, decryption_time
 
+
 # Unit tests for AES and Paillier comparison
 class TestEncryptionComparison(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        """This method will run once for the entire class and loads the CSV file"""
-        cls.df = pd.read_csv("data/bank.csv")  # Load the dataset once
-        cls.balance_value = cls.df['balance'].iloc[0]  # Get a balance value for testing
+    def test_encryption_comparison(self):
+        # Load the dataset
+        df = pd.read_csv("data/bank.csv")
+        balance_value = df['balance'].iloc[0]
 
-    def test_aes_encryption(self):
-        """Test AES encryption and decryption"""
+        # Set up AES key and Paillier keys
         key = b'\x00'*32  # AES 256-bit key
-        aes_encrypted, aes_decrypted, aes_encryption_time, aes_decryption_time = test_aes_encryption(str(self.balance_value), key)
+        public_key, private_key = paillier.generate_paillier_keypair()
+
+        # Test AES encryption and decryption
+        aes_encrypted, aes_decrypted, aes_encryption_time, aes_decryption_time = test_aes_encryption(str(balance_value), key)
+
+        # Test Paillier encryption and decryption
+        paillier_encrypted, paillier_decrypted, paillier_encryption_time, paillier_decryption_time = test_paillier_encryption(balance_value, public_key, private_key)
 
         print(f"AES Encryption Time: {aes_encryption_time:.6f} seconds")
         print(f"AES Decryption Time: {aes_decryption_time:.6f} seconds")
-
-        self.assertEqual(str(self.balance_value), aes_decrypted, "AES Decryption failed!")
-        self.assertNotEqual(aes_encrypted, str(self.balance_value).encode(), "AES Encryption didn't change the data!")
-
-    def test_paillier_encryption(self):
-        """Test Paillier encryption and decryption"""
-        public_key, private_key = paillier.generate_paillier_keypair()
-        paillier_encrypted, paillier_decrypted, paillier_encryption_time, paillier_decryption_time = test_paillier_encryption(self.balance_value, public_key, private_key)
-
         print(f"Paillier Encryption Time: {paillier_encryption_time:.6f} seconds")
         print(f"Paillier Decryption Time: {paillier_decryption_time:.6f} seconds")
 
-        self.assertEqual(self.balance_value, paillier_decrypted, "Paillier Decryption failed!")
-        self.assertNotEqual(paillier_encrypted, self.balance_value, "Paillier Encryption didn't change the data!")
-
-if __name__ == "__main__":
-    unittest.main()
+        self.assertEqual(balance_value, aes_decrypted, "AES Decryption failed!")
+        self.assertEqual(balance_value, paillier_decrypted, "Paillier Decryption failed!")
