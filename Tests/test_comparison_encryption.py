@@ -1,3 +1,5 @@
+import unittest  # Add this import statement
+
 import time
 import pandas as pd
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -81,4 +83,3 @@ class TestEncryptionComparison(unittest.TestCase):
 
         self.assertEqual(balance_value, aes_decrypted, "AES Decryption failed!")
         self.assertEqual(balance_value, paillier_decrypted, "Paillier Decryption failed!")
- 
