@@ -1,26 +1,56 @@
-# Python bytecode files
+# Python
+*.pyc
 *.pyo
 *.pyd
+__pycache__/
+*.pdb
+*.log
+*.swp
 
-# Virtual environment directories
-venv/
+# Environment
+.venv/
 env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# IDE specific files (e.g. VS Code, PyCharm)
-.vscode/
-.idea/
-
-# Jupyter Notebook checkpoints
+# Jupyter Notebooks
 .ipynb_checkpoints/
 
-# Pytest cache
-.cache/
+# IDEs and Editors
+.idea/
+.vscode/
+*.sublime-workspace
 
-# Distribution / packaging
-build/
+# Pytest
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.hypothesis/
+
+# PyInstaller
 dist/
-*.egg-info/
+build/
+*.spec
 
-# Local configuration
-*.env
-*.venv
+# VSCode Settings
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Data files (e.g. sensitive or large datasets)
+data/
+*.csv
+
+# Temporary files
+*.bak
+*.tmp
