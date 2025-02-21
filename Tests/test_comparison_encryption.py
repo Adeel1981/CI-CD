@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 from phe import paillier
-import pytest  # Add the pytest import
+import pytest  # Make sure pytest is imported
 
 # Function to encrypt data using AES
 def aes_encrypt(data, key):
@@ -58,19 +58,8 @@ def test_paillier_encryption(data, public_key, private_key):
 
 
 # Unit tests for AES and Paillier comparison
+@pytest.mark.usefixtures("data", "key")  # Explicitly mark that we are using the data and key fixtures
 class TestEncryptionComparison:
-
-    @pytest.fixture
-    def data(self):
-        # Updated to point to the correct path
-        df = pd.read_csv("Bank Data/bank.csv")  # Correct path to the CSV file
-        balance_value = df['balance'].iloc[0]  # Assuming 'balance' is the column
-        return balance_value
-
-    @pytest.fixture
-    def key(self):
-        # AES key (256-bit)
-        return b'\x00'*32
 
     def test_encryption_comparison(self, data, key):
         # Set up Paillier keys
