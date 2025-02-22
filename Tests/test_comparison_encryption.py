@@ -8,20 +8,20 @@ from cryptography.hazmat.primitives import padding
 def data():
     # Mock data instead of reading from CSV
     df = pd.DataFrame({
-        'balance': [1000, 2000, 3000],  # Just a few sample balances
+        'balance': [1000, 2000, 3000],  # Sample balances
         'name': ['Alice', 'Bob', 'Charlie'],
         'account_id': ['A123', 'B456', 'C789']
     })
-    return df['balance'].iloc[0]  # Return just the first balance value (adjust as necessary)
+    return df['balance'].iloc[0]  # Returning first balance value
 
 @pytest.fixture
 def key():
-    # Mock key for AES encryption
-    return b'16-byte-key-for-encryption'  # This is a 16-byte key for AES-128
+    # Use a valid AES key (16 bytes for AES-128, 24 bytes for AES-192, 32 bytes for AES-256)
+    return b'\x00' * 32  # 32-byte key for AES-256
 
 def test_aes_encryption(data, key):
-    # Mock AES encryption function
-    cipher = Cipher(algorithms.AES(key), modes.CBC(b'16-byte-iv-vector'), backend=default_backend())
+    # Corrected AES key to be exactly 32 bytes for AES-256
+    cipher = Cipher(algorithms.AES(key), modes.CBC(b'\x00' * 16), backend=default_backend())
     encryptor = cipher.encryptor()
 
     # Padding to match AES block size
@@ -31,10 +31,9 @@ def test_aes_encryption(data, key):
     # Encrypt data
     encrypted = encryptor.update(padded_data) + encryptor.finalize()
 
-    assert len(encrypted) > 0  # Check that something was encrypted
+    assert len(encrypted) > 0  # Ensure encryption produces output
 
-def test_key(data, key):
-    # Simple test to ensure key is correctly mocked
+def test_key(key):
+    # Check that key has the correct size for AES-256
     assert isinstance(key, bytes)
-    assert len(key) == 16  # AES-128 requires a 16-byte key
-
+    assert len(key) == 32  # AES-256 requires a 32-byte key
